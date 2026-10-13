@@ -1,0 +1,33 @@
+name: Browser package checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  browser-checks:
+    runs-on: ubuntu-latest
+    env:
+      FIREFOX_ADDON_ID: ci-fixture@example.invalid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm run lint
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-packages-unsigned-${{ github.sha }}
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS
+            dist/build.json
+          if-no-files-found: error
