@@ -13,8 +13,9 @@ FILES = ('manifest.json', 'popup.html', 'popup.js', 'content.js', 'icon128.png')
 
 
 def firefox_manifest(manifest, addon_id):
-    if not addon_id or not (re.fullmatch(r'[^\s@]+@[^\s@]+', addon_id) or
-                            re.fullmatch(r'\{[0-9a-fA-F-]{36}\}', addon_id)):
+    if not addon_id or not (
+            (len(addon_id) <= 80 and re.fullmatch(r'[a-zA-Z0-9._-]*@[a-zA-Z0-9._-]+', addon_id)) or
+            re.fullmatch(r'\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}', addon_id)):
         raise ValueError('FIREFOX_ADDON_ID must be a stable distributor-owned add-on ID')
     result = dict(manifest)
     result['browser_specific_settings'] = {'gecko': {
