@@ -1,0 +1,12 @@
+{
+  "name": "pmm-mod-importer-tooling",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "test": "python3 -m unittest discover -s tests && node --test tests/*.test.cjs",
+    "lint": "web-ext lint --source-dir dist/firefox --warnings-as-errors",
+    "sign": "node scripts/sign.cjs"
+  },
+  "devDependencies": { "web-ext": "10.7.0" }
+}

@@ -1,0 +1,39 @@
+name: Sign self-distributed Firefox package
+on:
+  workflow_dispatch:
+    inputs:
+      addon_id:
+        description: Distributor-owned stable Firefox add-on ID
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    environment: firefox-signing
+    env:
+      FIREFOX_ADDON_ID: ${{ inputs.addon_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run sign
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+      - name: Record signed checksums
+        run: sha256sum dist/signed/*.xpi > dist/signed/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firefox-signed-${{ github.sha }}
+          path: |
+            dist/signed/
+            dist/build.json
+          if-no-files-found: error
